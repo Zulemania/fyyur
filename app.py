@@ -32,6 +32,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
 # Models.
 #----------------------------------------------------------------------------#
 
+class Genre(db.Model):
+  __tablename__ = 'genres'
+
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+
+artist_genre_table = db.Table('artist_genre_table',
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id'), primary_key=True),
+    db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True)
+)
+
+venue_genre_table = ('venue_genre_table',
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id,'), primary_key=True),
+    db.Column('venue_id', db.Integer, db.ForeignKey('venues.id'), primary_key=True)
+)
+
 class Venue(db.Model):
     __tablename__ = 'venues'
 
@@ -299,8 +315,15 @@ def search_artists():
 def show_artist(artist_id):
   # shows the artist page with the given artist_id
   # TODO: replace with real artist data from the artist table, using artist_id
-  artist = Artist.query.get(artist_id)
-  shows = Show.query.filter_by(artist_id=artist_id).all()
+
+  artists = Artist.query.get(artist_id)
+  print(artists)
+  if not artists:
+    return redirect(url_for('index'))
+  else:
+    genre = [ genre.name for genre in artist.genres ]
+
+
   past_shows = []
   upcoming_shows = []
   current_time = datetime.now()
